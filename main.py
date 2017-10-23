@@ -7,8 +7,9 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED   = (255, 0, 0)
 BLUE  = (0, 0, 255)
+GREY  = (100,100,100)
 
-WIDTH = 800
+WIDTH = 1200
 HEIGHT = 800
 CENTERX = int(WIDTH/2)
 CENTERY = int(HEIGHT/2)
@@ -31,10 +32,12 @@ def gameLoop():
 
     drag_enabled = False
 
+    clearButton = ClearButton(1000,100)
+
     #----Main Loop----#
     while not done:
         # clear screen
-        screen.fill(WHITE)
+        screen.fill(GREY)
 
         # EVENT LOOP
         for event in pg.event.get():
@@ -45,11 +48,18 @@ def gameLoop():
             if event.type == pg.MOUSEBUTTONDOWN:
                 # LEFT CLICK EVENT
                 if event.button == 1:
+                    # cell clicked?
                     drag_enabled = True
                     m_pos = pg.mouse.get_pos()
                     cell_x, cell_y = get_cell(m_pos[0], m_pos[1])
 
-                    grid[cell_x][cell_y].filled = True
+                    if cell_x > 0 and cell_y > 0:
+                        grid[cell_x][cell_y].filled = True
+                    else:
+                        # clear button clicked?
+                        if m_pos[0] > 1000 and m_pos[0] < 1100:
+                            if m_pos[1] > 100 and m_pos[1] < 150:
+                                clearGrid()
 
             if event.type == pg.MOUSEBUTTONUP:
                 # LEFT CLICK UP EVENT
@@ -61,7 +71,8 @@ def gameLoop():
                     m_pos = pg.mouse.get_pos()
                     cell_x, cell_y = get_cell(m_pos[0], m_pos[1])
 
-                    grid[cell_x][cell_y].filled = True
+                    if cell_x > 0 and cell_y > 0:
+                        grid[cell_x][cell_y].filled = True
 
 
         # --- Game Logic
@@ -70,11 +81,20 @@ def gameLoop():
         # --- Drawing
 
         drawGrid(grid)
+        clearButton.draw()
 
         pg.display.flip()
         clock.tick(FPS)
 
+def clearGrid():
+    for i in range(len(grid)):
+        for j in range(len(grid[i])):
+            grid[i][j].filled = False
+
 def get_cell(x, y):
+
+    if x > 800 or y > 800: return (-1,-1)
+
     col = 0
     for i in range(20,800,20):
         if x <= i:
@@ -120,12 +140,24 @@ class Cell:
                                        self.size),
                                        0)
         else:
-            pg.draw.rect(screen, BLUE, (self.x,self.y,
+            pg.draw.rect(screen, BLACK, (self.x,self.y,
                                         self.size,
                                         self.size),
                                         2)
 
 
+class ClearButton:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+        self.width = 100
+        self.height = 50
+
+    def draw(self):
+        pg.draw.rect(screen, BLACK, (self.x,self.y,
+                                    self.width,
+                                    self.height),
+                                    0)
 
 if __name__ == '__main__':
     pg.init()
