@@ -34,6 +34,8 @@ def gameLoop():
 
     clearButton = ClearButton(1000,100)
 
+    agent = Agent()
+
     #----Main Loop----#
     while not done:
         # clear screen
@@ -53,7 +55,7 @@ def gameLoop():
                     m_pos = pg.mouse.get_pos()
                     cell_x, cell_y = get_cell(m_pos[0], m_pos[1])
 
-                    if cell_x > 0 and cell_y > 0:
+                    if cell_x >= 0 and cell_y >= 0:
                         grid[cell_x][cell_y].filled = True
                     else:
                         # clear button clicked?
@@ -74,14 +76,34 @@ def gameLoop():
                     if cell_x > 0 and cell_y > 0:
                         grid[cell_x][cell_y].filled = True
 
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_RIGHT:
+                    if agent.x != 40:
+                        agent.x += 1
 
-        # --- Game Logic
+                elif event.key == pg.K_LEFT:
+                    if agent.x != 0:
+                        agent.x -= 1
+
+                elif event.key == pg.K_DOWN:
+                    if agent.y != 40:
+                        agent.y += 1
+
+                elif event.key == pg.K_UP:
+                    if agent.y != 0:
+                        agent.y -= 1
 
 
-        # --- Drawing
+        # --- Game Logic ---
+
+
+        # --- Drawing ---
 
         drawGrid(grid)
         clearButton.draw()
+
+        # draw Agent
+        grid[agent.y][agent.x].highlight()
 
         pg.display.flip()
         clock.tick(FPS)
@@ -93,7 +115,7 @@ def clearGrid():
 
 def get_cell(x, y):
 
-    if x > 800 or y > 800: return (-1,-1)
+    if x > 800: return (-1,-1)
 
     col = 0
     for i in range(20,800,20):
@@ -145,6 +167,11 @@ class Cell:
                                         self.size),
                                         2)
 
+    def highlight(self):
+        pg.draw.rect(screen, GREEN, (self.x,self.y,
+                                   self.size,
+                                   self.size),
+                                   0)
 
 class ClearButton:
     def __init__(self,x,y):
@@ -158,6 +185,11 @@ class ClearButton:
                                     self.width,
                                     self.height),
                                     0)
+
+class Agent:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
 
 if __name__ == '__main__':
     pg.init()
