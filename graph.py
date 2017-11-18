@@ -1,4 +1,5 @@
-import sys
+# implement dijkstra using undirected graph
+# vertices stored using adjacency matrix
 
 class Graph:
 
@@ -6,6 +7,11 @@ class Graph:
 		self.V = verticeCount 
 		self.graph = [[0 for col in range(verticeCount)]
 					  for row in range(verticeCount)]
+
+	def printSolution(self, dist):
+		print("Vertex tDistance from Source")
+		for node in range(self.V):
+		    print(node,"t",dist[node])
 
 	# helper function to find vertex with 
 	# min distance in set of vectors not 
@@ -45,7 +51,7 @@ class Graph:
 				if self.graph[u][v] > 0 and spTree[v] == False and dist[v] > dist[u] + self.graph[u][v]:
 					dist[v] = dist[u] + self.graph[u][v]
 
-
+		self.printSolution(dist)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import pygame as pg
+from graph import Graph
 
 # ------------ Setup ------------- #
 #Colors
@@ -194,4 +195,8 @@ class Agent:
 if __name__ == '__main__':
     pg.init()
     makeGrid(grid)
+
+    graph = Graph(100)
+    graph.dijkstra(50)
+
     gameLoop()
