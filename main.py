@@ -1,5 +1,5 @@
 import pygame as pg
-from graph import Graph
+from dijkstra import Graph
 
 # ------------ Setup ------------- #
 #Colors
@@ -57,12 +57,11 @@ def gameLoop():
                     cell_x, cell_y = get_cell(m_pos[0], m_pos[1])
 
                     if cell_x >= 0 and cell_y >= 0:
-                        grid[cell_x][cell_y].filled = True
+                        if not (cell_x == agent.x and cell_y == agent.y):
+                            grid[cell_x][cell_y].filled = True
                     else:
                         # clear button clicked?
-                        if m_pos[0] > 1000 and m_pos[0] < 1100:
-                            if m_pos[1] > 100 and m_pos[1] < 150:
-                                clearGrid()
+                        clearButton.checkClick(m_pos[0], m_pos[1])
 
             if event.type == pg.MOUSEBUTTONUP:
                 # LEFT CLICK UP EVENT
@@ -74,29 +73,12 @@ def gameLoop():
                     m_pos = pg.mouse.get_pos()
                     cell_x, cell_y = get_cell(m_pos[0], m_pos[1])
 
-                    if cell_x > 0 and cell_y > 0:
-                        grid[cell_x][cell_y].filled = True
-
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_RIGHT:
-                    if agent.x != 40:
-                        agent.x += 1
-
-                elif event.key == pg.K_LEFT:
-                    if agent.x != 0:
-                        agent.x -= 1
-
-                elif event.key == pg.K_DOWN:
-                    if agent.y != 40:
-                        agent.y += 1
-
-                elif event.key == pg.K_UP:
-                    if agent.y != 0:
-                        agent.y -= 1
+                    if cell_x >= 0 and cell_y >= 0:
+                        if not (cell_x == agent.x and cell_y == agent.y):
+                            grid[cell_x][cell_y].filled = True
 
 
         # --- Game Logic ---
-
 
         # --- Drawing ---
 
@@ -135,11 +117,17 @@ def get_cell(x, y):
 def makeGrid(grid):
     x = 0
     y = 0
+    num = 0
     for y in range(0,800,20):
         row = []
         for x in range(0,800,20):
-            row.append(Cell(x,y))
+            row.append(Cell(x,y,num))
+            num += 1
         grid.append(row)
+
+    for row in grid:
+        for cell in row:
+            cell.addNeighbors(grid)
 
 def drawGrid(grid):
     count = 0
@@ -148,13 +136,19 @@ def drawGrid(grid):
             grid[i][j].draw()
             count += 1
 
+
 class Cell:
     # x,y - top left
-    def __init__(self, x, y):
+    def __init__(self, x, y, num):
         self.x = x
         self.y = y
         self.size = 20
         self.filled = False
+        self.neighbors = []
+        self.id = num
+
+    def __repr__(self):
+        return '(%d, %d)' % (self.x, self.y)
 
     def draw(self):
         if(self.filled):
@@ -174,6 +168,23 @@ class Cell:
                                    self.size),
                                    0)
 
+    def addNeighbors(self, grid):
+        i = int(self.y/20)
+        j = int(self.x/20)
+
+        if i < len(grid[0]) - 1:
+            if not grid[i + 1][j].filled:
+                self.neighbors.append(grid[i + 1][j])
+        if i > 0:
+            if not grid[i - 1][j].filled:
+                self.neighbors.append(grid[i - 1][j])
+        if j < len(grid[0]) - 1:
+            if not grid[i][j + 1].filled:
+                self.neighbors.append(grid[i][j + 1])
+        if j > 0:
+            if not grid[i][j - 1].filled:
+                self.neighbors.append(grid[i][j - 1])
+
 class ClearButton:
     def __init__(self,x,y):
         self.x = x
@@ -186,6 +197,11 @@ class ClearButton:
                                     self.width,
                                     self.height),
                                     0)
+    def checkClick(self, x, y):
+        if x > self.x and x < self.x + self.width:
+            if y > self.y and y < self.y + self.height:
+                clearGrid()
+
 
 class Agent:
     def __init__(self):
@@ -196,7 +212,7 @@ if __name__ == '__main__':
     pg.init()
     makeGrid(grid)
 
-    graph = Graph(100)
-    graph.dijkstra(50)
+    g = Graph(1600, grid)
+    print(g.dijkstra(grid[0][0], grid[5][5]))
 
     gameLoop()

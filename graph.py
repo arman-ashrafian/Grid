@@ -3,10 +3,12 @@
 
 class Graph:
 
-	def __init__(self, verticeCount):
+	def __init__(self, verticeCount, grid):
 		self.V = verticeCount 
 		self.graph = [[0 for col in range(verticeCount)]
 					  for row in range(verticeCount)]
+
+
 
 	def printSolution(self, dist):
 		print("Vertex tDistance from Source")
